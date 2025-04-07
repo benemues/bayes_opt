@@ -1,6 +1,7 @@
 from bayes_opt import BayesianOptimization
 import numpy as np
 import matplotlib.pyplot as plt
+import pickle
 
 import logging
 logging.basicConfig(filename='log_susi.log', level=logging.DEBUG, format='%(asctime)s %(message)s')
@@ -12,7 +13,9 @@ class SusiBO:
         self.n_iter = n_iter
         self.init_points = init_points
         self._meas = None  # Cache for experimental data
-        self.init_params()
+        self.init_params()  # Muss VOR dem Erstellen des Optimizers kommen!
+        self.optimizer = BayesianOptimization(f=self.loss, pbounds=self.bounds, random_state=42)
+
 
     def init_params(self):
         """Sets initial parameter bounds based on TEST value."""
@@ -63,11 +66,45 @@ class SusiBO:
         y_theo = self.theo(**pars)
         return -np.sum((y_meas - y_theo) ** 2)  # Negative sum since bayes_opt maximizes
 
+    def plot_param_evolution(self, params):
+        x = list(range(len(params)))
+        param_names = list(params[0]['params'].keys())
+
+        for name in param_names:
+            y = [res["params"][name] for res in params]
+            plt.plot(x, y, label=f"{name}")
+
+        plt.xlabel("Iteration")
+        plt.ylabel("Parameterwert")
+        plt.title("Parameterentwicklung während der Bayesian Optimization")
+        plt.legend()
+        plt.show()
+
+    def want_to_continue(self):
+        match input("Continue? y/n"):
+            case "y":
+                n_iter = int(input("How many iterations?"))
+                self.continue_fitting(n_iter)
+                self.plot_results()
+                
+            case "n":
+                print("Ok")
+                print(f"best_params: {self.best_params}")
+            case _:
+                print("Invalid input!")
+
     def run(self):
         """Runs Bayesian Optimization."""
-        optimizer = BayesianOptimization(f=self.loss, pbounds=self.bounds, random_state=42)
-        optimizer.maximize(init_points=self.init_points, n_iter=self.n_iter)
-        self.best_params = optimizer.max['params']
+        self.optimizer.maximize(init_points=self.init_points, n_iter=self.n_iter)
+        self.best_params = self.optimizer.max['params']
+        with open("optimizer.pkl", "wb") as f:
+            pickle.dump(self.optimizer, f)
+            
+        self.plot_param_evolution(self.optimizer.res)
+        
+        self.plot_results()
+        
+        self.want_to_continue()
 
     def plot_results(self):
         """Plots the measured data and the best model fit."""
@@ -78,9 +115,26 @@ class SusiBO:
         plt.plot(data['x'], best_fit, 'r-', label='Best fit')
         plt.legend()
         plt.show()
+        
+    def continue_fitting(self, n_iter):
+        with open("optimizer.pkl", "rb") as f:
+            self.optimizer = pickle.load(f)
+        
+        self.optimizer.maximize(n_iter=n_iter)
+        self.best_params = self.optimizer.max['params']
+        
+        self.plot_param_evolution(self.optimizer.res)
+
+        with open("optimizer.pkl", "wb") as f:
+            pickle.dump(self.optimizer, f)
+            
+        self.want_to_continue()
 
 if __name__ == '__main__':
-    TEST = 0  # Choose the model
+    TEST = 1  # Choose the model
     susi = SusiBO(test=TEST, init_points=5, n_iter=20)
     susi.run()
-    susi.plot_results()
+    
+    
+    
+    
