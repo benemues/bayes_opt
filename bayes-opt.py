@@ -80,7 +80,7 @@ class SusiBO:
         plt.show()
 
 if __name__ == '__main__':
-    TEST = 2  # Choose the model
-    susi = SusiBO(test=TEST, init_points=5, n_iter=100)
+    TEST = 0  # Choose the model
+    susi = SusiBO(test=TEST, init_points=5, n_iter=20)
     susi.run()
     susi.plot_results()
