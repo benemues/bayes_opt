@@ -15,7 +15,7 @@ class Susi():
     def __init__(self,
                  pars={},
                  sampler=fabada.Fabada):
-        self.pars = pars # always contains latest parameter values (updated after a complete iteration)
+        self.pars = pars # always contains laTEST parameter values (updated after a complete iteration)
         self._meas = None # cache for the experimental data
         self.sampler = sampler(pars=self.pars, meas=self.meas, theo=self.theo)
         self.log = self.sampler.log
