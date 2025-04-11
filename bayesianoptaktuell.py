@@ -87,11 +87,8 @@ class SusiBO:
     def plott_corner(self):
         params = self.optimizer.res
         param_names = list(params[0]['params'].keys())
-        for name in param_names:
-            y = [res["params"][name] for res in params]
-        print(y)
-        y = np.array(y)
-        figure = corner.corner(y)
+        samples = np.array([[res['params'][name] for name in param_names] for res in params])
+        fig = corner.corner(samples, labels=param_names, show_titles=True, title_kwargs={"fontsize": 12})
         
     def continue_fitting(self):
         self.allit += self.n_iter
@@ -226,5 +223,5 @@ def gauss_random_multiply(arr):
       
 if __name__ == '__main__':
     TEST = 1  # Choose the model
-    susi = SusiBO(test=TEST, init_points=3, n_iter=40)    
+    susi = SusiBO(test=TEST, init_points=50, n_iter=200)    
     susi.run()

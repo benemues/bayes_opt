@@ -173,6 +173,6 @@ def gauss_random_multiply(arr):
       
 if __name__ == '__main__':
     TEST = 1  # Choose the model
-    susi = SusiBO(test=TEST, init_points=0, n_iter=4)    
+    susi = SusiBO(test=TEST, init_points=50, n_iter=100)    
     susi.run()
     
