@@ -324,7 +324,7 @@ def gauss_random_multiply(arr):
     Randomly modify uncertainties by multiplying with Gaussian noise.
     """
     mean = np.mean(arr)
-    sigma = 20
+    sigma = 1
     ga_mu = np.random.normal(loc=mean, scale=sigma, size=arr.shape)
     ga_mu = np.abs(ga_mu)
     return arr * ga_mu
