@@ -1,3 +1,6 @@
+import sys
+print(sys.executable)
+
 from bayes_opt import BayesianOptimization
 import numpy as np
 import matplotlib.pyplot as plt
@@ -102,6 +105,7 @@ class SusiBO:
         Continue the optimization process after user input.
         """
         self.allit += self.n_iter
+        self.optimizer.maximize(init_points=self.init_points, n_iter=0)
         self._optimize_loop()
         self.after_optimization()
 
